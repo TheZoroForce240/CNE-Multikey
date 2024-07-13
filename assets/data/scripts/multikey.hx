@@ -505,6 +505,9 @@ function onNoteHit(event)
 }
 function onPlayerMiss(event)
 {
+	if (event.animCancelled)
+		return;
+	
     event.animCancelled = true;
 	var directionID = multikeySingDirs[getKeyCountIndex(event.playerID)][event.direction];
     for(char in event.characters) {
