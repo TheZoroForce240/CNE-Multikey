@@ -1,6 +1,6 @@
 # CNE Multikey
 
-A mod for [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) that adds multikey support (1K - 9K).
+A mod for [Codename Engine](https://github.com/CodenameCrew/CodenameEngine) that adds multikey support (1K - 9K).
 
 ![](https://github.com/TheZoroForce240/CNE-Multikey/blob/main/github/main.png)
 
@@ -11,11 +11,10 @@ This mod does not include multikey in the chart editor! This [fork](https://gith
 - Custom Controls
 - Mid song key count changes
 - Different key counts per strumline
-- Gamepad and [Mobile](https://github.com/MobilePorting/CodenameEngine-Mobile) support
+- Gamepad support
 
 ![](https://github.com/TheZoroForce240/CNE-Multikey/blob/main/github/controlsmenu.png)
 ![](https://github.com/TheZoroForce240/CNE-Multikey/blob/main/github/controlsmenugamepad.png)
-![](https://github.com/TheZoroForce240/CNE-Multikey/blob/main/github/mobile.png)
 
 ## How to use
 
