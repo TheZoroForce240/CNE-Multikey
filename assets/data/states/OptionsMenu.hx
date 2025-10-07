@@ -1,5 +1,5 @@
 import funkin.options.type.TextOption;
-import funkin.options.OptionsScreen;
+import funkin.options.TreeMenuScreen;
 import funkin.options.keybinds.ChangeKeybindSubState;
 import flixel.input.gamepad.FlxGamepadInputID;
 import funkin.backend.MusicBeatSubstate;
@@ -19,9 +19,16 @@ function create()
 {
 	importScript("data/scripts/controlsCheck.hx");
 }
+var firstFrame = true;
+function update(elapsed) {
+	if (firstFrame) {
+		generateMenu();
+		firstFrame = false;
+	}
+}
 var keyCountMenuNames = [];
 var keyOptionsData = [];
-function postCreate()
+function generateMenu()
 {
 
     //
@@ -71,79 +78,95 @@ function postCreate()
 		}
 	}
 
-	main.add(new TextOption("Multikey Controls >", "", function() {
-		var menu = new OptionsScreen("Multikey Controls", "", [
-			new TextOption("Keyboard >", "", function() {
-				var keyCountMenus = [];
-				var i = 0;
-				for (menuData in keyOptionsData)
-				{
-					var menuName = keyCountMenuNames[i];
-					if (i != 3) //ignore 4k
-					{
-						//submenu for each key count
-						var option = new TextOption(menuName, "", function()
-						{
-							//create options
-							var subOptions = [];
-							for (optionData in menuData)
-								subOptions.push(setupOption(optionData[0], optionData[1], optionData[2]));
-							for (optionData in menuData)
-								subOptions.push(setupOption(optionData[0] + " P2", optionData[1]+"p2", optionData[2]));
+	var main = tree[0];
+
+	main.add(new TextOption("Multikey Controls", "", " >", function() {
+		var mkMenu = new TreeMenuScreen("Multikey Controls", "");
+
+		var keyboardOption = new TextOption("Keyboard", "", " >", function() {
 			
-							var subMenu = new OptionsScreen(menuName, "", subOptions);
-							optionsTree.add(subMenu);
-						});
-						keyCountMenus.push(option);
-					}
-					i++;
-				}
-
-				var menu = new OptionsScreen("Keyboard", "", keyCountMenus);
-				optionsTree.add(menu);
-			}),
-			new TextOption("Gamepad >", "", function() {
-
-				var keyCountMenus = [];
-				var i = 0;
-				for (menuData in keyOptionsData)
+			var keyCountMenus = [];
+			var i = 0;
+			for (menuData in keyOptionsData)
+			{
+				var menuName = keyCountMenuNames[i];
+				if (i != 3) //ignore 4k
 				{
-					var menuName = keyCountMenuNames[i];
-					var option = new TextOption(menuName, "", function()
+					//submenu for each key count
+					var option = new TextOption(menuName, "", " >", function()
 					{
+						//create options
+						var subOptions = [];
+						for (optionData in menuData)
+							subOptions.push(setupOption(optionData[0], optionData[1], optionData[2]));
+						for (optionData in menuData)
+							subOptions.push(setupOption(optionData[0] + " P2", optionData[1]+"p2", optionData[2]));
+		
+						var subMenu = new TreeMenuScreen(menuName, "");
+						for (o in subOptions) subMenu.add(o);
+						addMenu(subMenu);
+					});
+					keyCountMenus.push(option);
+				}
+				i++;
+			}
+
+			var menu = new TreeMenuScreen("Keyboard", "");
+			for (o in keyCountMenus) menu.add(o);
+			addMenu(menu);
+		});
+		mkMenu.add(keyboardOption);
+
+		///////////////////
+		var gamepadOption = new TextOption("Gamepad", "", " >", function() {
+			
+			var keyCountMenus = [];
+			var i = 0;
+			for (menuData in keyOptionsData)
+			{
+				var menuName = keyCountMenuNames[i];
+				if (i != 3) //ignore 4k
+				{
+					//submenu for each key count
+					var option = new TextOption(menuName, "", " >", function()
+					{
+						//create options
 						var subOptions = [];
 						for (optionData in menuData)
 							subOptions.push(setupOptionGamepad(optionData[0], optionData[1]+"gamepad", optionData[2]));
 						for (optionData in menuData)
 							subOptions.push(setupOptionGamepad(optionData[0] + " P2", optionData[1]+"gamepadP2", optionData[2]));
 		
-						var subMenu = new OptionsScreen(menuName, "", subOptions);
-						optionsTree.add(subMenu);
+						var subMenu = new TreeMenuScreen(menuName, "");
+						for (o in subOptions) subMenu.add(o);
+						addMenu(subMenu);
 					});
 					keyCountMenus.push(option);
-					i++;
 				}
+				i++;
+			}
 
-				var menu = new OptionsScreen("Gamepad", "", keyCountMenus);
-				optionsTree.add(menu);
-
-			})
-		]);
-        optionsTree.add(menu);
+			var menu = new TreeMenuScreen("Gamepad", "");
+			for (o in keyCountMenus) menu.add(o);
+			addMenu(menu);
+		});
+		mkMenu.add(gamepadOption);
+	
+        addMenu(mkMenu);
 	}));
-
 }
 
 function setupOption(name:String, savePath:String, arrow:String)
 {
     var option:TextOption;
-    option = new TextOption("", "", function()
+    option = new TextOption("", "", "", function()
     {
         openKeybindMenu(option, name, savePath, false);
     });
-    option.__text.isBold = false;
+    option.__text.font = "normal";
     option.text = name + ": " + CoolUtil.keyToString(Reflect.getProperty(FlxG.save.data, savePath));
-    option.__text.y -= 65;
+    option.__text.y -= 30;
+	option.__text.x += 75;
 
     //arrow icon
     var icon = new FlxSprite();
@@ -163,14 +186,15 @@ function setupOption(name:String, savePath:String, arrow:String)
 function setupOptionGamepad(name:String, savePath:String, arrow:String)
 {
 	var option:TextOption;
-	option = new TextOption("", "", function()
+	option = new TextOption("", "", "", function()
 	{
 		openKeybindMenu(option, name, savePath, true);
 	});
-	option.__text.isBold = false;
+	option.__text.font = "normal";
 	var bind = FlxGamepadInputID.toStringMap.get(Reflect.getProperty(FlxG.save.data, savePath));
-	option.text = name + ": " + (bind == null ? "---" : bind);
-	option.__text.y -= 65;
+	option.text = name + ": " + (bind == null ? "---" : getGamepadName(bind));
+    option.__text.y -= 30;
+	option.__text.x += 75;
 
 	//arrow icon
 	var icon = new FlxSprite();
@@ -203,7 +227,7 @@ function openKeybindMenu(option:TextOption, name:String, savePath:String, gamepa
 		if (gamepad)
 		{
 			var bind = FlxGamepadInputID.toStringMap.get(Reflect.getProperty(FlxG.save.data, savePath));
-			option.text = name + ": " + (bind == null ? "---" : bind);
+			option.text = name + ": " + (bind == null ? "---" : getGamepadName(bind));
 		}
 		else
 		{
@@ -219,7 +243,7 @@ function openKeybindMenu(option:TextOption, name:String, savePath:String, gamepa
 		if (gamepad)
 		{
 			var bind = FlxGamepadInputID.toStringMap.get(Reflect.getProperty(FlxG.save.data, savePath));
-			option.text = name + ": " + (bind == null ? "---" : bind);
+			option.text = name + ": " + (bind == null ? "---" : getGamepadName(bind));
 		}
 		else
 		{
@@ -228,4 +252,26 @@ function openKeybindMenu(option:TextOption, name:String, savePath:String, gamepa
 		multikeyControlsCallback = null;
 		multikeyControlsCancelCallback = null;
 	};
+}
+
+function getGamepadName(bind) {
+    switch(bind) {
+        case "LEFT_STICK_DIGITAL_UP": return "LS UP";
+        case "LEFT_STICK_DIGITAL_DOWN": return "LS DOWN";
+        case "LEFT_STICK_DIGITAL_LEFT": return "LS LEFT";
+        case "LEFT_STICK_DIGITAL_RIGHT": return "LS RIGHT";
+        case "RIGHT_STICK_DIGITAL_UP": return "RS UP";
+        case "RIGHT_STICK_DIGITAL_DOWN": return "RS DOWN";
+        case "RIGHT_STICK_DIGITAL_LEFT": return "RS LEFT";
+        case "RIGHT_STICK_DIGITAL_RIGHT": return "RS RIGHT";
+
+        case "LEFT_SHOULDER": return "LB";
+        case "RIGHT_SHOULDER": return "RB";
+
+        case "LEFT_STICK_CLICK": return "LS CLICK";
+        case "RIGHT_STICK_CLICK": return "RS CLICK";
+
+    }
+
+    return bind;
 }

@@ -126,8 +126,15 @@ function onStrumCreation(event)
     strum.animation.addByPrefix('pressed', multikeyStrumAnims[kc][strum.ID][2], 24, false);
     strum.animation.addByPrefix('confirm', multikeyStrumAnims[kc][strum.ID][1], 24, false);
 
+	//fixes for 1.0
+	var sl = PlayState.SONG.strumLines[event.player];
+	var strOffset:Float = sl.strumLinePos == null ? (sl.type == 1 ? 0.75 : 0.25) : sl.strumLinePos;
+	var startingPos = sl.strumPos == null ?
+		FlxPoint.get((FlxG.width * strOffset) - ((Note.swagWidth * (sl.strumScale == null ? 1 : sl.strumScale)) * 2), this.strumLine.y) :
+		FlxPoint.get(sl.strumPos[0] == 0 ? ((FlxG.width * strOffset) - ((Note.swagWidth * (sl.strumScale == null ? 1 : sl.strumScale)) * 2)) : sl.strumPos[0], sl.strumPos[1]);
+
 	//reposition strum
-	strum.x = strumLines.members[event.player].startingPos.x + ((strumLineSwagWidths[event.player] * strumLines.members[event.player].strumScale) * strum.ID);
+	strum.x = startingPos.x + ((strumLineSwagWidths[event.player] * strumLines.members[event.player].strumScale) * strum.ID);
     strum.x += multikeyOffsets[kc];
     strum.updateHitbox();
 

@@ -14,7 +14,7 @@ function postStateSwitch()
 
 	init = true;
 	PlayerSettings.solo.controls.removeGamepad(0);
-	PlayerSettings.solo.controls.addGamepadLiteral(0, [
+	PlayerSettings.solo.controls.addGamepad(0, [
 		Control.ACCEPT => [FlxGamepadInputID.A],
 		Control.BACK => [FlxGamepadInputID.B],
 		Control.UP => [FlxGamepadInputID.DPAD_UP, FlxGamepadInputID.LEFT_STICK_DIGITAL_UP],
